@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Promote Libre — le tableau de bord UGC, sans abonnement</title>
+<meta name="description" content="Hommage critique à Promote It : suivi de campagnes UGC, calcul du net réel, briefs. Gratuit, sans compte, données sur l'appareil.">
+<style>
+  :root{
+    --bg:#0a0c10; --panel:#12161c; --panel2:#171c24; --line:#242c37;
+    --txt:#e7edf4; --mut:#8c99a8; --lime:#b6ff3c; --warn:#ffb454; --red:#ff6b6b;
+    --r:14px; --max:760px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--txt);
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding-bottom:78px; -webkit-text-size-adjust:100%;
+  }
+  a{color:var(--lime)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:18px 16px 8px}
+  header.top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .logo{width:34px;height:34px;border-radius:10px;background:var(--lime);color:#0a0c10;font-weight:800;
+    display:grid;place-items:center;font-size:15px;letter-spacing:-.5px}
+  .brand{font-weight:700;letter-spacing:-.3px}
+  .brand small{display:block;font-weight:400;color:var(--mut);font-size:12px;letter-spacing:0}
+  h1{font-size:24px;line-height:1.2;letter-spacing:-.5px;margin:16px 0 6px}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:26px 0 10px;font-weight:600}
+  h3{font-size:15px;margin:0 0 4px;letter-spacing:-.2px}
+  p{margin:8px 0}
+  .lede{color:var(--mut);font-size:14.5px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:10px 0}
+  .card.tight{padding:12px 14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .between{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}
+  .kpi .lab{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+  .kpi .val{font-size:21px;font-weight:700;letter-spacing:-.6px;margin-top:2px}
+  .kpi .sub{font-size:12px;color:var(--mut)}
+  .pill{display:inline-block;font-size:11.5px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);
+    color:var(--mut);background:#0f141a;white-space:nowrap}
+  .pill.ok{color:#0a0c10;background:var(--lime);border-color:var(--lime);font-weight:700}
+  .pill.warn{color:var(--warn);border-color:#4a3a20;background:#1d1710}
+  .pill.bad{color:var(--red);border-color:#4a2626;background:#1e1212}
+  button,.btn{font:inherit;font-weight:650;border-radius:11px;padding:11px 14px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--txt);cursor:pointer;min-height:44px}
+  button.primary{background:var(--lime);color:#0a0c10;border-color:var(--lime)}
+  button.ghost{background:transparent}
+  button.small{padding:7px 11px;min-height:36px;font-size:13px;font-weight:600}
+  button:active{transform:translateY(1px)}
+  label{display:block;font-size:12.5px;color:var(--mut);margin:10px 0 4px;font-weight:600;letter-spacing:.02em}
+  input,select,textarea{width:100%;font:inherit;color:var(--txt);background:#0d1117;border:1px solid var(--line);
+    border-radius:10px;padding:11px 12px;min-height:44px}
+  textarea{min-height:88px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:2px solid #4a6b1f;outline-offset:1px}
+  .hint{font-size:12px;color:var(--mut);margin-top:4px}
+  .bar{height:9px;border-radius:99px;background:#0d1117;border:1px solid var(--line);overflow:hidden;margin:8px 0 4px}
+  .bar > i{display:block;height:100%;background:var(--lime)}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(10,12,16,.96);border-top:1px solid var(--line);
+    backdrop-filter:blur(10px);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  nav.tabs button{background:transparent;border:0;min-height:46px;padding:4px 6px;font-size:10.5px;line-height:1.2;
+    color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600}
+  nav.tabs button .ic{font-size:17px;line-height:1}
+  nav.tabs button[aria-selected="true"]{color:var(--lime)}
+  .tab{display:none}
+  .tab.active{display:block;animation:fade .18s ease-out}
+  @keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+  ul.clean{margin:6px 0 0;padding-left:18px}
+  ul.clean li{margin:5px 0;font-size:14.5px}
+  .quote{border-left:3px solid var(--line);padding:2px 0 2px 12px;color:var(--mut);font-size:13.5px;margin:8px 0}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+  .cmp div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px}
+  .cmp .theirs{border-color:#3a2a1a}
+  .cmp .ours{border-color:#33441c}
+  .mono{font-variant-numeric:tabular-nums}
+  .big{font-size:30px;font-weight:800;letter-spacing:-1px}
+  .good{color:var(--lime)} .warnc{color:var(--warn)} .badc{color:var(--red)}
+  details{border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:8px 0;overflow:hidden}
+  summary{padding:12px 14px;cursor:pointer;font-weight:650;font-size:14.5px;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";float:right;color:var(--mut)}
+  details[open] summary::after{content:"–"}
+  details .body{padding:0 14px 14px;color:var(--mut);font-size:14px}
+  .sub-item{border-top:1px solid var(--line);padding:10px 0}
+  .sub-item:first-child{border-top:0}
+  .sub-item .u{font-size:12.5px;color:var(--mut);word-break:break-all}
+  .empty{color:var(--mut);font-size:14px;padding:6px 0}
+  .foot{color:#5c6773;font-size:12px;line-height:1.5;margin:24px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+  .warnbox{background:#1a1408;border:1px solid #4a3a20;color:#ffd9a0;border-radius:12px;padding:12px 14px;font-size:13.5px;margin:10px 0}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;background:var(--lime);color:#0a0c10;
+    font-weight:700;font-size:13.5px;padding:10px 16px;border-radius:999px;opacity:0;pointer-events:none;
+    transition:opacity .2s;z-index:9}
+  .toast.show{opacity:1}
+  @media (min-width:720px){
+    nav.tabs{position:sticky;top:0;bottom:auto;justify-content:center;gap:6px;border-bottom:1px solid var(--line);
+      border-top:0;padding:8px}
+    nav.tabs button{flex-direction:row;font-size:13px;gap:7px;padding:8px 14px;border-radius:10px}
+    nav.tabs button[aria-selected="true"]{background:#1a2110}
+    body{padding-bottom:24px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">PL</div>
+    <div class="brand">Promote Libre<small>hommage gratuit, sans prélèvement</small></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="bord" aria-selected="true"><span class="ic">◧</span>Bord</button>
+    <button role="tab" data-tab="campagnes" aria-selected="false"><span class="ic">▤</span>Campagnes</button>
+    <button role="tab" data-tab="soumissions" aria-selected="false"><span class="ic">↑</span>Envois</button>
+    <button role="tab" data-tab="calcul" aria-selected="false"><span class="ic">÷</span>Calcul</button>
+    <button role="tab" data-tab="briefs" aria-selected="false"><span class="ic">✎</span>Briefs</button>
+    <button role="tab" data-tab="limites" aria-selected="false"><span class="ic">!</span>Limites</button>
+  </nav>
+
+  <!-- ============ BORD ============ -->
+  <section class="tab active" id="tab-bord" role="tabpanel">
+    <h1>Ton argent, ton calcul, pas leur abonnement.</h1>
+    <p class="lede">Le tableau de bord d'un créateur UGC : campagnes, envois, vues, net réel. Aucun compte, aucun euro ne circule ici, rien ne quitte ton appareil.</p>
+
+    <div class="card tight">
+      <div class="between"><span class="pill" id="pill-abonne">sans abonnement</span><span class="hint" id="taux-info"></span></div>
+      <div class="grid2" style="margin-top:10px">
+        <div class="kpi"><div class="lab">Brut validé</div><div class="val mono" id="k-brut">0 $</div><div class="sub" id="k-brut-eur">0 €</div></div>
+        <div class="kpi"><div class="lab">Disponible</div><div class="val mono" id="k-dispo">0 $</div><div class="sub" id="k-dispo-eur">0 €</div></div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="between"><span class="hint">Seuil de retrait : 100 $</span><span class="hint mono" id="k-seuil-txt">0 %</span></div>
+        <div class="bar"><i id="k-seuil-bar" style="width:0%"></i></div>
+        <div class="hint" id="k-seuil-note">Ajoute un envoi validé pour voir le net après frais.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Le net, tout de suite</h3>
+      <p class="hint" style="margin:2px 0 8px">Frais de retrait 4 % avec abonnement, 10 % sans — exactement le barème publié par Promote au 16/11/2026.</p>
+      <div class="between"><span>Net si tu retires aujourd'hui</span><strong class="mono" id="k-net">0 $</strong></div>
+      <div class="between"><span>Frais déduits</span><strong class="mono" id="k-frais">0 $</strong></div>
+      <div class="between"><span>Coût mensuel de la plateforme</span><strong class="mono" id="k-cout">10 $</strong></div>
+      <p class="hint" id="k-verdict" style="margin-top:10px"></p>
+    </div>
+
+    <h2>Promote contre ici</h2>
+    <div class="cmp">
+      <div class="theirs">
+        <strong>Promote It</strong>
+        <ul class="clean" style="padding-left:16px">
+          <li>9,99 €/mois ou 69,99 €/an</li>
+          <li>jusqu'à 10 $/mois de frais de compte</li>
+          <li>4 à 10 % au retrait, dès 100 $</li>
+          <li>fil de campagnes restreint sans abo</li>
+        </ul>
+      </div>
+      <div class="ours">
+        <strong>Promote Libre</strong>
+        <ul class="clean" style="padding-left:16px">
+          <li>0 €, aucun abonnement</li>
+          <li>aucun frais, aucun seuil</li>
+          <li>le barème est affiché, pas appliqué</li>
+          <li>fonctionne hors ligne</li>
+        </ul>
+      </div>
+    </div>
+    <p class="hint">Les chiffres de gauche viennent des CGU et de la fiche App Store de Promote It, relevés le 16/11/2026. Ce site ne fait que les calculer.</p>
+
+    <h2>Réglages</h2>
+    <div class="card">
+      <label for="set-taux">Taux USD → EUR</label>
+      <input id="set-taux" type="number" step="0.01" min="0.5" max="1.5" inputmode="decimal">
+      <label for="set-abo">Tu envisages l'abonnement ?</label>
+      <select id="set-abo">
+        <option value="non">Non — 10 % de frais, 10 $/mois</option>
+        <option value="oui">Oui — 4 % de frais, 9,99 €/mois</option>
+      </select>
+      <div class="row" style="margin-top:14px">
+        <button class="small" data-action="export">Exporter mes données</button>
+        <button class="small ghost" data-action="import">Importer</button>
+        <button class="small ghost" data-action="reset">Tout effacer</button>
+      </div>
+      <div class="hint" id="store-note" style="margin-top:8px"></div>
+    </div>
+  </section>
+
+  <!-- ============ CAMPAGNES ============ -->
+  <section class="tab" id="tab-campagnes" role="tabpanel">
+    <h1>Campagnes</h1>
+    <p class="lede">Quatre campagnes de démonstration, chiffres inventés pour tester les calculs. Ajoute les tiennes : c'est un carnet, pas un marché.</p>
+
+    <div class="warnbox">Les campagnes marquées « démo » n'existent pas. Aucune marque ne paie ici : ce site ne met personne en relation et ne détient aucun fonds.</div>
+
+    <div id="list-campagnes"></div>
+
+    <h2>Ajouter une campagne</h2>
+    <form class="card" id="form-campagne">
+      <label for="c-marque">Marque</label>
+      <input id="c-marque" required maxlength="60" placeholder="Nom de la marque">
+      <label for="c-titre">Titre de la campagne</label>
+      <input id="c-titre" required maxlength="80" placeholder="Ex. App photo — 3 vidéos tests">
+      <div class="grid2">
+        <div>
+          <label for="c-plateforme">Plateforme</label>
+          <select id="c-plateforme"><option>TikTok</option><option>Instagram</option><option>YouTube</option><option>Autre</option></select>
+        </div>
+        <div>
+          <label for="c-rpm">Tarif / 1 000 vues ($)</label>
+          <input id="c-rpm" type="number" step="0.05" min="0" value="2" inputmode="decimal">
+        </div>
+      </div>
+      <div class="grid2">
+        <div>
+          <label for="c-cap">Plafond par vidéo ($, 0 = aucun)</label>
+          <input id="c-cap" type="number" step="10" min="0" value="0" inputmode="numeric">
+        </div>
+        <div>
+          <label for="c-pays">Marché</label>
+          <input id="c-pays" maxlength="30" value="France">
+        </div>
+      </div>
+      <button class="primary" type="submit" style="margin-top:14px;width:100%">Ajouter</button>
+    </form>
+  </section>
+
+  <!-- ============ SOUMISSIONS ============ -->
+  <section class="tab" id="tab-soumissions" role="tabpanel">
+    <h1>Envois</h1>
+    <p class="lede">Le délai réel de Promote, rendu visible : validation automatique après 72 h sans réponse de la marque, fonds disponibles 4 jours plus tard.</p>
+
+    <form class="card" id="form-envoi">
+      <label for="s-campagne">Campagne</label>
+      <select id="s-campagne"></select>
+      <label for="s-url">Lien de la vidéo</label>
+      <input id="s-url" placeholder="https://www.tiktok.com/@toi/video/..." inputmode="url">
+      <div class="grid2">
+        <div>
+          <label for="s-vues">Vues vérifiées</label>
+          <input id="s-vues" type="number" min="0" step="100" value="0" inputmode="numeric">
+        </div>
+        <div>
+          <label for="s-date">Publiée le</label>
+          <input id="s-date" type="date">
+        </div>
+      </div>
+      <button class="primary" type="submit" style="margin-top:14px;width:100%">Enregistrer l'envoi</button>
+      <p class="hint">Rien n'est publié ni vérifié par ce site : tu saisis ce que tu constates.</p>
+    </form>
+
+    <h2>Suivi</h2>
+    <div id="list-envois"></div>
+  </section>
+
+  <!-- ============ CALCUL ============ -->
+  <section class="tab" id="tab-calcul" role="tabpanel">
+    <h1>Calculateur de net</h1>
+    <p class="lede">Ce que Promote montre comme « gains », puis ce qu'il reste une fois le barème appliqué.</p>
+
+    <form class="card" id="form-calc">
+      <div class="grid2">
+        <div>
+          <label for="x-rpm">Tarif / 1 000 vues ($)</label>
+          <input id="x-rpm" type="number" step="0.05" min="0.05" value="2" inputmode="decimal">
+        </div>
+        <div>
+          <label for="x-vues">Vues par vidéo</label>
+          <input id="x-vues" type="number" step="1000" min="0" value="50000" inputmode="numeric">
+        </div>
+      </div>
+      <div class="grid2">
+        <div>
+          <label for="x-videos">Vidéos</label>
+          <input id="x-videos" type="number" step="1" min="1" value="1" inputmode="numeric">
+        </div>
+        <div>
+          <label for="x-cap">Plafond / vidéo ($)</label>
+          <input id="x-cap" type="number" step="10" min="0" value="0" inputmode="numeric">
+        </div>
+      </div>
+      <label for="x-abo">Statut</label>
+      <select id="x-abo"><option value="non">Sans abonnement (10 %)</option><option value="oui">Avec Promote Pro (4 %)</option></select>
+    </form>
+
+    <div class="card">
+      <div class="between"><span>Gain brut affiché</span><strong class="mono" id="x-brut">0 $</strong></div>
+      <div class="between"><span>Après plafonds</span><strong class="mono" id="x-brut2">0 $</strong></div>
+      <div class="between"><span>Frais de retrait</span><strong class="mono" id="x-frais">0 $</strong></div>
+      <div class="between"><span>Coût de l'abonnement</span><strong class="mono" id="x-abo-cout">0 $</strong></div>
+      <div class="between" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line)">
+        <span><strong>Net en poche</strong></span><strong class="big mono good" id="x-net">0 $</strong>
+      </div>
+      <p class="hint" id="x-net-eur"></p>
+    </div>
+
+    <div class="card">
+      <h3>Le seuil qui bloque</h3>
+      <p class="hint" style="margin-top:2px">Combien de vues pour toucher 100 $ net, puis pour amortir l'abonnement.</p>
+      <div class="between"><span>Vues pour 100 $ net (une vidéo)</span><strong class="mono" id="x-vues100">—</strong></div>
+      <div class="between"><span>Vues pour 500 € net</span><strong class="mono" id="x-vues500">—</strong></div>
+      <div class="between"><span>Retraits mensuels où l'abo se rentabilise</span><strong class="mono" id="x-seuil-abo">—</strong></div>
+      <p class="hint" id="x-verdict" style="margin-top:10px"></p>
+    </div>
+  </section>
+
+  <!-- ============ BRIEFS ============ -->
+  <section class="tab" id="tab-briefs" role="tabpanel">
+    <h1>Briefs et accroches</h1>
+    <p class="lede">Ce que l'app vend comme « scripts fournis », en clair : quatre structures qui marchent, à réécrire avec tes mots. Aucune IA ici, aucun crédit à acheter.</p>
+    <div id="list-briefs"></div>
+  </section>
+
+  <!-- ============ LIMITES ============ -->
+  <section class="tab" id="tab-limites" role="tabpanel">
+    <h1>Ce qui manque pour que ce soit vrai</h1>
+    <p class="lede">Un marché à deux faces ne tient pas sur du code. Voilà ce que ce site fait, et ce qu'il ne peut pas faire — sans détour.</p>
+
+    <div class="card">
+      <h3>Ce qui marche ici</h3>
+      <ul class="clean">
+        <li>Le calcul complet du net : RPM, plafonds, 4 ou 10 %, seuil de 100 $, frais mensuels.</li>
+        <li>Le suivi d'envois avec les vrais délais (72 h de revue, 4 jours de rétention).</li>
+        <li>Un carnet de campagnes et un export JSON de tes données.</li>
+        <li>Fonctionne hors ligne, sans compte, sans télémétrie.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Ce qu'il faudrait pour refaire la plateforme</h3>
+      <ul class="clean">
+        <li><strong>Des marques qui paient.</strong> C'est le seul vrai produit, et ça ne s'écrit pas : ça se vend. Sans budget côté marque, le plus beau fil de campagnes est vide.</li>
+        <li><strong>Un encaissement et un versement.</strong> Carte, séquestre, KYC, sanctions, fiscalité : Stripe Connect, Whop ou Talentir, avec statut d'établissement de paiement ou un prestataire agréé. Ce n'est pas un formulaire, c'est un contrat.</li>
+        <li><strong>Une vérification des vues officielle.</strong> Les API TikTok Display, Instagram Graph et YouTube Data donnent des chiffres défendables ; le raclage de pages publiques donne des chiffres contestables, et c'est là que naissent les litiges.</li>
+        <li><strong>De l'anti-fraude.</strong> Vues achetées, comptes multiples, fermes de téléphones : sans détection, la marque paie du vent et part.</li>
+        <li><strong>Le cadre.</strong> 18 ans minimum, CGU, RGPD, mentions de contenu de marque conformes aux règles TikTok et Instagram, et déclaration fiscale des revenus en France.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Pourquoi c'est gratuit, et pourquoi ça le reste</h3>
+      <p>Parce qu'il n'y a pas de flux d'argent à financer : aucun euro n'entre ni ne sort. Un site qui ne touche pas d'argent n'a aucune raison de te facturer un abonnement pour « couvrir la détection de fraude ».</p>
+      <p class="quote">Chez Promote, l'abonnement est présenté comme le financement du suivi des vues. Ici le suivi, c'est toi qui le saisis — donc il n'y a rien à financer.</p>
+    </div>
+
+    <div class="foot">
+      Promote Libre est un hommage critique et non commercial à Promote It (DOTVIDEO LLC). Aucune affiliation, aucune donnée partagée, aucune transaction. Barème comparé relevé le 16/11/2026 sur les CGU de l'éditeur et la fiche App Store : 9,99 €/mois, 69,99 €/an, frais de retrait 4 % ou 10 %, minimum 100 $, frais de compte jusqu'à 10 $/mois, frais de marque 10 % et 3 % au dépôt. Les campagnes de démonstration sont fictives ; les calculs, eux, sont exacts.
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="file-import" accept="application/json" hidden>
+
+<script>
+'use strict';
+
+/* ---------- fonctions pures ---------- */
+function gainBrut(rpm, vues){
+  if (!(rpm > 0) || !(vues > 0)) return 0;
+  return rpm * vues / 1000;
+}
+function gainPlafonne(rpm, vues, cap){
+  const g = gainBrut(rpm, vues);
+  return (cap > 0 && g > cap) ? cap : g;
+}
+function tauxFrais(abonne){ return abonne ? 0.04 : 0.10; }
+function fraisRetrait(montant, abonne){
+  if (!(montant > 0)) return 0;
+  return montant * tauxFrais(abonne);
+}
+function netRetrait(montant, abonne){
+  if (!(montant > 0)) return 0;
+  return montant - fraisRetrait(montant, abonne);
+}
+function vuesPourNet(netCible, rpm, abonne, cap){
+  if (!(rpm > 0) || !(netCible > 0)) return Infinity;
+  const brutRequis = netCible / (1 - tauxFrais(abonne));
+  if (cap > 0 && brutRequis > cap) return Infinity;
+  return Math.ceil(brutRequis * 1000 / rpm);
+}
+function seuilAbo(prixAboMensuel){
+  // l'abo fait passer de 10 % à 4 % : 6 points de gain
+  if (!(prixAboMensuel > 0)) return Infinity;
+  return prixAboMensuel / 0.06;
+}
+function statutEnvoi(isoPublication, maintenant){
+  const t = Date.parse(isoPublication);
+  if (isNaN(t)) return {code:'attente', label:'date inconnue', jours:0};
+  const h = (maintenant - t) / 36e5;
+  if (h < 72) return {code:'revue', label:'en revue — validation auto dans ' + Math.ceil(72 - h) + ' h', jours:h};
+  if (h < 96) return {code:'valide', label:'validée — fonds sous ' + Math.ceil(96 - h) + ' h', jours:h};
+  return {code:'dispo', label:'fonds disponibles', jours:h};
+}
+function eur(usd, taux){ return (usd || 0) * (taux || 0.92); }
+/* ---------- formatage ---------- */
+
+function fmt(n, devise){
+  const d = (devise === 'EUR') ? '€' : '$';
+  const v = (isFinite(n) ? n : 0);
+  return v.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' ' + d;
+}
+function fmtInt(n){
+  if (!isFinite(n)) return '—';
+  return Math.round(n).toLocaleString('fr-FR');
+}
+
+/* ---------- état ---------- */
+
+const CLE = 'promote-libre-v1';
+const PRIX_ABO = 9.99;      // €/mois, fiche App Store du 16/11/2026
+const FRAIS_COMPTE = 10;    // $/mois max, CGU §5
+const SEUIL = 100;          // $ minimum de retrait, CGU §5
+
+function etatParDefaut(){
+  return {
+    taux: 0.92,
+    abonne: false,
+    campaigns: [
+      {id:'d1', demo:true, marque:'Marque démo', titre:'App photo — vidéos courtes', plateforme:'TikTok', rpm:2.00, cap:200, pays:'France'},
+      {id:'d2', demo:true, marque:'Marque démo', titre:'Nutrition — avant/après', plateforme:'Instagram', rpm:1.20, cap:80, pays:'France'},
+      {id:'d3', demo:true, marque:'Marque démo', titre:'SaaS B2B — démo produit', plateforme:'YouTube', rpm:3.50, cap:300, pays:'France'},
+      {id:'d4', demo:true, marque:'Marque démo', titre:'Faceless finance — voix off', plateforme:'TikTok', rpm:0.80, cap:40, pays:'France'}
+    ],
+    subs: []
+  };
+}
+let etat = etatParDefaut();
+let stockageOK = true;
+
+function charger(){
+  try{
+    const brut = localStorage.getItem(CLE);
+    if (brut){
+      const lu = JSON.parse(brut);
+      etat = Object.assign(etatParDefaut(), lu);
+      if (!Array.isArray(etat.campaigns) || etat.campaigns.length === 0) etat.campaigns = etatParDefaut().campaigns;
+      if (!Array.isArray(etat.subs)) etat.subs = [];
+    }
+  }catch(e){ stockageOK = false; }
+}
+function sauver(){
+  if (!stockageOK) return;
+  try{ localStorage.setItem(CLE, JSON.stringify(etat)); }
+  catch(e){ stockageOK = false; }
+}
+function uid(){ return Math.random().toString(36).slice(2, 9); }
+
+/* ---------- calculs dérivés ---------- */
+function totalBrut(){
+  return etat.subs.reduce((s, x) => {
+    const c = etat.campaigns.find(k => k.id === x.campaignId);
+    if (!c) return s;
+    return s + gainPlafonne(c.rpm, x.vues, c.cap);
+  }, 0);
+}
+function soldeDisponible(maintenant){
+  return etat.subs.reduce((s, x) => {
+    const c = etat.campaigns.find(k => k.id === x.campaignId);
+    if (!c) return s;
+    const st = statutEnvoi(x.date, maintenant);
+    if (st.code !== 'dispo') return s;
+    return s + gainPlafonne(c.rpm, x.vues, c.cap);
+  }, 0);
+}
+function texteSeuil(dispo){
+  const part = Math.min(100, dispo / SEUIL * 100);
+  if (dispo < SEUIL) return {part: part, note: 'Il manque ' + fmt(SEUIL - dispo) + ' avant de pouvoir demander un retrait.'};
+  return {part: 100, note: 'Seuil atteint : ' + fmt(netRetrait(dispo, etat.abonne)) + ' nets si tu retires maintenant.'};
+}
+
+/* ---------- rendu ---------- */
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.prototype.slice.call(document.querySelectorAll(s));
+
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function toast(msg){
+  const t = $('#toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function rendreBord(){
+  const now = Date.now();
+  const brut = totalBrut();
+  const dispo = soldeDisponible(now);
+  $('#k-brut').textContent = fmt(brut);
+  $('#k-brut-eur').textContent = '≈ ' + fmt(eur(brut, etat.taux), 'EUR');
+  $('#k-dispo').textContent = fmt(dispo);
+  $('#k-dispo-eur').textContent = '≈ ' + fmt(eur(dispo, etat.taux), 'EUR');
+  $('#k-net').textContent = fmt(netRetrait(dispo, etat.abonne));
+  $('#k-frais').textContent = fmt(fraisRetrait(dispo, etat.abonne));
+  $('#k-cout').textContent = etat.abonne ? fmt(PRIX_ABO, 'EUR') + ' /mois' : fmt(FRAIS_COMPTE) + ' /mois';
+  const s = texteSeuil(dispo);
+  $('#k-seuil-bar').style.width = s.part.toFixed(1) + '%';
+  $('#k-seuil-txt').textContent = Math.round(s.part) + ' %';
+  $('#k-seuil-note').textContent = s.note;
+
+  const pill = $('#pill-abonne');
+  pill.textContent = etat.abonne ? 'Promote Pro simulé' : 'sans abonnement';
+  pill.className = 'pill ' + (etat.abonne ? 'warn' : '');
+  $('#taux-info').textContent = '1 $ = ' + etat.taux.toFixed(2) + ' €';
+
+  const verdict = $('#k-verdict');
+  if (dispo < 1){
+    verdict.textContent = 'Enregistre un envoi dans « Envois » pour voir le net réel.';
+  } else {
+    const seuil = seuilAbo(PRIX_ABO);
+    verdict.textContent = etat.abonne
+      ? 'Avec abo, il faut retirer ' + fmt(seuil) + ' par mois pour que les 9,99 € soient couverts. En dessous, tu paies pour économiser moins que le prix.'
+      : 'Sans abo, 10 % partent au retrait. L’abonnement à 9,99 € se rentabilise au-delà de ' + fmt(seuil) + ' de retraits mensuels, pas avant.';
+  }
+}
+
+function rendreCampagnes(){
+  const el = $('#list-campagnes');
+  if (!etat.campaigns.length){ el.innerHTML = '<p class="empty">Aucune campagne.</p>'; return; }
+  el.innerHTML = etat.campaigns.map(c => `
+    <div class="card">
+      <div class="between">
+        <div><h3>${esc(c.titre)}</h3><span class="hint">${esc(c.marque)} · ${esc(c.plateforme)} · ${esc(c.pays || '—')}</span></div>
+        <div style="text-align:right">
+          <div class="mono" style="font-weight:700">${fmt(c.rpm)}</div>
+          <span class="hint">/1 000 vues</span>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        ${c.demo ? '<span class="pill warn">démo — fictive</span>' : '<span class="pill ok">à moi</span>'}
+        <span class="pill">${c.cap > 0 ? 'plafond ' + fmt(c.cap) : 'sans plafond'}</span>
+        <span class="pill">100 $ en ${c.cap > 0 && c.cap < 100 ? 'impossible (plafond)' : fmtInt(vuesPourNet(100, c.rpm, etat.abonne, c.cap)) + ' vues'}</span>
+      </div>
+      ${c.demo ? '' : `<div class="row" style="margin-top:8px"><button class="small ghost" data-del-camp="${c.id}">Supprimer</button></div>`}
+    </div>`).join('');
+}
+
+function rendreEnvois(){
+  const now = Date.now();
+  const el = $('#list-envois');
+  if (!etat.subs.length){ el.innerHTML = '<p class="empty">Aucun envoi enregistré.</p>'; return; }
+  const tri = etat.subs.slice().sort((a,b) => (b.date || '').localeCompare(a.date || ''));
+  el.innerHTML = tri.map(x => {
+    const c = etat.campaigns.find(k => k.id === x.campaignId);
+    const st = statutEnvoi(x.date, now);
+    const g = c ? gainPlafonne(c.rpm, x.vues, c.cap) : 0;
+    const cls = st.code === 'dispo' ? 'ok' : (st.code === 'valide' ? 'warn' : '');
+    return `<div class="card tight">
+      <div class="between">
+        <div><h3>${esc(c ? c.titre : 'campagne supprimée')}</h3>
+        <span class="hint">${esc(c ? c.marque : '')} · ${fmtInt(x.vues)} vues</span></div>
+        <div style="text-align:right"><div class="mono" style="font-weight:700">${fmt(g)}</div><span class="hint">${fmt(netRetrait(g, etat.abonne))} net</span></div>
+      </div>
+      <div class="row" style="margin-top:8px"><span class="pill ${cls}">${st.label}</span>${c && c.cap > 0 && gainBrut(c.rpm, x.vues) > c.cap ? '<span class="pill bad">plafond atteint</span>' : ''}</div>
+      ${x.url ? `<div class="u" style="margin-top:6px">${esc(x.url)}</div>` : ''}
+      <div class="row" style="margin-top:8px"><button class="small ghost" data-del-sub="${x.id}">Supprimer</button></div>
+    </div>`;
+  }).join('');
+}
+
+function remplirSelect(){
+  const sel = $('#s-campagne');
+  const valeur = sel.value;
+  sel.innerHTML = etat.campaigns.map(c => `<option value="${c.id}">${esc(c.marque)} — ${esc(c.titre)}</option>`).join('');
+  if (valeur) sel.value = valeur;
+}
+
+function rendreCalcul(){
+  const rpm = parseFloat($('#x-rpm').value) || 0;
+  const vues = parseFloat($('#x-vues').value) || 0;
+  const videos = Math.max(1, parseInt($('#x-videos').value, 10) || 1);
+  const cap = parseFloat($('#x-cap').value) || 0;
+  const abonne = $('#x-abo').value === 'oui';
+
+  const brutUnit = gainBrut(rpm, vues);
+  const brut2Unit = gainPlafonne(rpm, vues, cap);
+  const brut = brutUnit * videos;
+  const brut2 = brut2Unit * videos;
+  const frais = fraisRetrait(brut2, abonne);
+  const coutAbo = abonne ? PRIX_ABO : FRAIS_COMPTE;
+  const net = netRetrait(brut2, abonne) - coutAbo;
+
+  $('#x-brut').textContent = fmt(brut);
+  $('#x-brut2').textContent = fmt(brut2);
+  $('#x-frais').textContent = fmt(frais);
+  $('#x-abo-cout').textContent = abonne ? fmt(PRIX_ABO, 'EUR') : fmt(FRAIS_COMPTE);
+  $('#x-net').textContent = fmt(net);
+  $('#x-net-eur').textContent = '≈ ' + fmt(eur(net, etat.taux), 'EUR') + ' après frais et coût mensuel';
+
+  const v100 = vuesPourNet(100, rpm, abonne, cap);
+  const v500 = vuesPourNet(500 / etat.taux, rpm, abonne, cap);
+  $('#x-vues100').textContent = isFinite(v100) ? fmtInt(v100) + ' vues' : 'impossible avec ce plafond';
+  $('#x-vues500').textContent = isFinite(v500) ? fmtInt(v500) + ' vues' : 'impossible avec ce plafond';
+  const seuil = seuilAbo(PRIX_ABO);
+  $('#x-seuil-abo').textContent = fmt(seuil) + ' /mois';
+
+  const verdict = $('#x-verdict');
+  if (net <= 0){
+    verdict.innerHTML = '<strong class="badc">Négatif.</strong> À ce volume, la plateforme te coûte plus qu’elle ne te rapporte.';
+  } else if (brut2 < seuil){
+    verdict.innerHTML = 'Sous ' + fmt(seuil) + ' de retraits mensuels, <strong class="warnc">l’abonnement coûte plus qu’il n’économise</strong> : reste sans abo.';
+  } else {
+    verdict.innerHTML = 'Au-dessus de ' + fmt(seuil) + ' de retraits mensuels, l’abonnement est arithmétiquement rentable. Reste à voir si le fil de campagnes se remplit.';
+  }
+}
+
+function rendreBriefs(){
+  const briefs = [
+    {t:'Face caméra — 25 s', h:['« J’ai testé pendant 7 jours, voilà ce qui s’est passé. »','« Personne n’en parle, et c’est le problème. »','« Si tu fais X, arrête tout de suite. »'], c:'Plan d’accroche 0–3 s (problème), 3–12 s (ce que tu as fait), 12–20 s (résultat concret, un chiffre), 20–25 s (une seule demande).'},
+    {t:'Faceless — voix off sur captures', h:['« Ce chiffre m’a coûté 300 €. »','« Trois choses que j’aurais aimé savoir avant. »','« Regarde ce que ça donne au bout de 30 jours. »'], c:'Écran réel à l’appui dès la 2e seconde. Une idée par plan, un sous-titre par idée. Pas de musique qui couvre la voix.'},
+    {t:'Avant / après', h:['« Même lumière, même cadrage, 14 jours d’écart. »','« Ce n’est pas un filtre. »'], c:'Même angle, même durée pour les deux prises. Le « après » arrive avant la 5e seconde, sinon la rétention tombe.'},
+    {t:'Story avec lien', h:['« Deux minutes, et tu comprends pourquoi. »','« Je te mets le lien, juge par toi-même. »'], c:'Une seule action demandée. Story verticale, texte dans la zone sûre, sticker lien en bas à 20 % de la hauteur.'}
+  ];
+  $('#list-briefs').innerHTML = briefs.map((b, i) => `
+    <details ${i === 0 ? 'open' : ''}>
+      <summary>${esc(b.t)}</summary>
+      <div class="body">
+        <p style="color:var(--txt);font-size:14px">${esc(b.c)}</p>
+        ${b.h.map(h => `<p class="quote">${esc(h)}</p>`).join('')}
+        <button class="small" data-copy="${esc(b.h.join(' / '))}">Copier les accroches</button>
+      </div>
+    </details>`).join('');
+}
+
+function rendreTout(){
+  rendreBord();
+  rendreCampagnes();
+  rendreEnvois();
+  remplirSelect();
+  rendreCalcul();
+  $('#set-taux').value = etat.taux;
+  $('#set-abo').value = etat.abonne ? 'oui' : 'non';
+  $('#store-note').textContent = stockageOK
+    ? 'Tes données restent dans ce navigateur (localStorage). Exporte-les avant de vider le cache.'
+    : 'Stockage local indisponible : la session ne sera pas conservée.';
+}
+
+/* ---------- interactions ---------- */
+function onglet(nom){
+  $$('.tab').forEach(t => t.classList.toggle('active', t.id === 'tab-' + nom));
+  $$('nav.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === nom)));
+  window.scrollTo(0, 0);
+}
+
+document.addEventListener('click', (e) => {
+  const tab = e.target.closest('nav.tabs button');
+  if (tab){ onglet(tab.dataset.tab); return; }
+
+  const copy = e.target.closest('[data-copy]');
+  if (copy){
+    const txt = copy.getAttribute('data-copy');
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(() => toast('Accroches copiées'), () => toast('Copie refusée par le navigateur'));
+    } else { toast('Copie non disponible'); }
+    return;
+  }
+
+  const delCamp = e.target.closest('[data-del-camp]');
+  if (delCamp){
+    const id = delCamp.getAttribute('data-del-camp');
+    etat.campaigns = etat.campaigns.filter(c => c.id !== id);
+    etat.subs = etat.subs.filter(s => s.campaignId !== id);
+    sauver(); rendreTout(); toast('Campagne supprimée'); return;
+  }
+
+  const delSub = e.target.closest('[data-del-sub]');
+  if (delSub){
+    const id = delSub.getAttribute('data-del-sub');
+    etat.subs = etat.subs.filter(s => s.id !== id);
+    sauver(); rendreTout(); toast('Envoi supprimé'); return;
+  }
+
+  const act = e.target.closest('[data-action]');
+  if (act){
+    const a = act.getAttribute('data-action');
+    if (a === 'export') exporter();
+    if (a === 'import') $('#file-import').click();
+    if (a === 'reset'){
+      if (confirm('Effacer tes campagnes et tes envois ? Les données de démo seront rétablies.')){
+        etat = etatParDefaut(); sauver(); rendreTout(); toast('Remis à zéro');
+      }
+    }
+  }
+});
+
+function exporter(){
+  const blob = new Blob([JSON.stringify(etat, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'promote-libre-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('Export prêt');
+}
+
+$('#file-import').addEventListener('change', (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const lu = JSON.parse(r.result);
+      if (!Array.isArray(lu.campaigns) || !Array.isArray(lu.subs)) throw new Error('format');
+      etat = Object.assign(etatParDefaut(), lu);
+      sauver(); rendreTout(); toast('Données importées');
+    }catch(err){ toast('Fichier illisible'); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+});
+
+$('#form-campagne').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const c = {
+    id: uid(), demo:false,
+    marque: $('#c-marque').value.trim() || 'Sans nom',
+    titre: $('#c-titre').value.trim() || 'Campagne',
+    plateforme: $('#c-plateforme').value,
+    rpm: parseFloat($('#c-rpm').value) || 0,
+    cap: parseFloat($('#c-cap').value) || 0,
+    pays: $('#c-pays').value.trim()
+  };
+  etat.campaigns.push(c); sauver();
+  e.target.reset(); $('#c-rpm').value = 2; $('#c-cap').value = 0; $('#c-pays').value = 'France';
+  rendreTout(); toast('Campagne ajoutée'); onglet('campagnes');
+});
+
+$('#form-envoi').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const campagne = $('#s-campagne').value;
+  if (!campagne){ toast('Ajoute d’abord une campagne'); return; }
+  const d = $('#s-date').value || new Date().toISOString().slice(0, 10);
+  etat.subs.push({
+    id: uid(), campaignId: campagne,
+    url: $('#s-url').value.trim(),
+    vues: Math.max(0, parseInt($('#s-vues').value, 10) || 0),
+    date: d
+  });
+  sauver(); e.target.reset(); $('#s-vues').value = 0;
+  rendreTout(); toast('Envoi enregistré');
+});
+
+['#x-rpm','#x-vues','#x-videos','#x-cap','#x-abo'].forEach(s => {
+  const el = $(s);
+  el.addEventListener('input', rendreCalcul);
+  el.addEventListener('change', rendreCalcul);
+});
+
+$('#set-taux').addEventListener('input', () => {
+  const v = parseFloat($('#set-taux').value);
+  if (v > 0.2 && v < 3){ etat.taux = v; sauver(); rendreBord(); rendreCalcul(); }
+});
+$('#set-abo').addEventListener('change', () => {
+  etat.abonne = $('#set-abo').value === 'oui';
+  $('#x-abo').value = etat.abonne ? 'oui' : 'non';
+  sauver(); rendreTout();
+});
+
+/* ---------- démarrage ---------- */
+charger();
+$('#s-date').value = new Date().toISOString().slice(0, 10);
+rendreTout();
+</script>
+</body>
+</html>
