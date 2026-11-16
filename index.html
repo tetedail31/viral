@@ -630,6 +630,7 @@ function rendreTout(){
   rendreEnvois();
   remplirSelect();
   rendreCalcul();
+  rendreBriefs();
   $('#set-taux').value = etat.taux;
   $('#set-abo').value = etat.abonne ? 'oui' : 'non';
   $('#store-note').textContent = stockageOK
