@@ -85,7 +85,7 @@
   details .body{padding:0 14px 14px;color:var(--mut);font-size:14px}
   .sub-item{border-top:1px solid var(--line);padding:10px 0}
   .sub-item:first-child{border-top:0}
-  .sub-item .u{font-size:12.5px;color:var(--mut);word-break:break-all}
+  .u{font-size:12.5px;color:var(--mut);word-break:break-all;overflow-wrap:anywhere}
   .empty{color:var(--mut);font-size:14px;padding:6px 0}
   .foot{color:#5c6773;font-size:12px;line-height:1.5;margin:24px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
   .warnbox{background:#1a1408;border:1px solid #4a3a20;color:#ffd9a0;border-radius:12px;padding:12px 14px;font-size:13.5px;margin:10px 0}
@@ -531,7 +531,7 @@ function rendreCampagnes(){
       <div class="row" style="margin-top:10px">
         ${c.demo ? '<span class="pill warn">démo — fictive</span>' : '<span class="pill ok">à moi</span>'}
         <span class="pill">${c.cap > 0 ? 'plafond ' + fmt(c.cap) : 'sans plafond'}</span>
-        <span class="pill">100 $ en ${c.cap > 0 && c.cap < 100 ? 'impossible (plafond)' : fmtInt(vuesPourNet(100, c.rpm, etat.abonne, c.cap)) + ' vues'}</span>
+        <span class="pill">${(() => { const v = vuesPourNet(100, c.rpm, etat.abonne, c.cap); return isFinite(v) ? '100 $ en ' + fmtInt(v) + ' vues' : '100 $ hors d’atteinte (plafond)'; })()}</span>
       </div>
       ${c.demo ? '' : `<div class="row" style="margin-top:8px"><button class="small ghost" data-del-camp="${c.id}">Supprimer</button></div>`}
     </div>`).join('');
