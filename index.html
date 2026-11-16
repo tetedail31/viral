@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Promote Libre — le tableau de bord UGC, sans abonnement</title>
-<meta name="description" content="Hommage critique à Promote It : suivi de campagnes UGC, calcul du net réel, briefs. Gratuit, sans compte, données sur l'appareil.">
+<title>Viral — le tableau de bord UGC, sans abonnement</title>
+<meta name="description" content="Viral : suivi de campagnes UGC, calcul du net réel, briefs. Gratuit, sans compte, données sur l'appareil.">
 <style>
   :root{
     --bg:#0a0c10; --panel:#12161c; --panel2:#171c24; --line:#242c37;
@@ -21,6 +21,11 @@
   a{color:var(--lime)}
   .wrap{max-width:var(--max);margin:0 auto;padding:18px 16px 8px}
   header.top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  a.portal{margin-left:auto;text-decoration:none;color:var(--txt);background:var(--panel2);
+    border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:650;
+    min-height:38px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  a.portal:active{transform:translateY(1px)}
+  a.portal.bar{display:flex;justify-content:center;margin:14px 0 4px;min-height:46px;width:100%}
   .logo{width:34px;height:34px;border-radius:10px;background:var(--lime);color:#0a0c10;font-weight:800;
     display:grid;place-items:center;font-size:15px;letter-spacing:-.5px}
   .brand{font-weight:700;letter-spacing:-.3px}
@@ -105,8 +110,9 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="logo">PL</div>
-    <div class="brand">Promote Libre<small>hommage gratuit, sans prélèvement</small></div>
+    <div class="logo">V</div>
+    <div class="brand">Viral<small>suivi UGC, sans abonnement</small></div>
+    <a class="portal" href="https://tetedail31.github.io/portail/">Portail ↗</a>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
@@ -157,7 +163,7 @@
         </ul>
       </div>
       <div class="ours">
-        <strong>Promote Libre</strong>
+        <strong>Viral</strong>
         <ul class="clean" style="padding-left:16px">
           <li>0 €, aucun abonnement</li>
           <li>aucun frais, aucun seuil</li>
@@ -344,8 +350,10 @@
       <p class="quote">Chez Promote, l'abonnement est présenté comme le financement du suivi des vues. Ici le suivi, c'est toi qui le saisis — donc il n'y a rien à financer.</p>
     </div>
 
+    <a class="portal bar" href="https://tetedail31.github.io/portail/">◧ Toutes mes pages — Portail</a>
+
     <div class="foot">
-      Promote Libre est un hommage critique et non commercial à Promote It (DOTVIDEO LLC). Aucune affiliation, aucune donnée partagée, aucune transaction. Barème comparé relevé le 16/11/2026 sur les CGU de l'éditeur et la fiche App Store : 9,99 €/mois, 69,99 €/an, frais de retrait 4 % ou 10 %, minimum 100 $, frais de compte jusqu'à 10 $/mois, frais de marque 10 % et 3 % au dépôt. Les campagnes de démonstration sont fictives ; les calculs, eux, sont exacts.
+      Viral est un hommage critique et non commercial à Promote It (DOTVIDEO LLC). Aucune affiliation, aucune donnée partagée, aucune transaction. Barème comparé relevé le 16/11/2026 sur les CGU de l'éditeur et la fiche App Store : 9,99 €/mois, 69,99 €/an, frais de retrait 4 % ou 10 %, minimum 100 $, frais de compte jusqu'à 10 $/mois, frais de marque 10 % et 3 % au dépôt. Les campagnes de démonstration sont fictives ; les calculs, eux, sont exacts.
     </div>
   </section>
 </div>
@@ -690,7 +698,7 @@ function exporter(){
   const blob = new Blob([JSON.stringify(etat, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'promote-libre-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.download = 'viral-' + new Date().toISOString().slice(0, 10) + '.json';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   toast('Export prêt');
