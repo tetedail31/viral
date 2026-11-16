@@ -141,7 +141,7 @@
       <p class="hint" style="margin:2px 0 8px">Frais de retrait 4 % avec abonnement, 10 % sans — exactement le barème publié par Promote au 16/11/2026.</p>
       <div class="between"><span>Net si tu retires aujourd'hui</span><strong class="mono" id="k-net">0 $</strong></div>
       <div class="between"><span>Frais déduits</span><strong class="mono" id="k-frais">0 $</strong></div>
-      <div class="between"><span>Coût mensuel de la plateforme</span><strong class="mono" id="k-cout">10 $</strong></div>
+      <div class="between"><span>Coût plateforme</span><strong class="mono" id="k-cout">10 $ max</strong></div>
       <p class="hint" id="k-verdict" style="margin-top:10px"></p>
     </div>
 
@@ -292,6 +292,7 @@
         <span><strong>Net en poche</strong></span><strong class="big mono good" id="x-net">0 $</strong>
       </div>
       <p class="hint" id="x-net-eur"></p>
+      <p class="hint">Le frais de compte de 10 $/mois n'est pas déduit ici : les CGU l'annulent dès qu'un retrait a eu lieu dans les 60 jours précédents.</p>
     </div>
 
     <div class="card">
@@ -493,7 +494,7 @@ function rendreBord(){
   $('#k-dispo-eur').textContent = '≈ ' + fmt(eur(dispo, etat.taux), 'EUR');
   $('#k-net').textContent = fmt(netRetrait(dispo, etat.abonne));
   $('#k-frais').textContent = fmt(fraisRetrait(dispo, etat.abonne));
-  $('#k-cout').textContent = etat.abonne ? fmt(PRIX_ABO, 'EUR') + ' /mois' : fmt(FRAIS_COMPTE) + ' /mois';
+  $('#k-cout').textContent = etat.abonne ? fmt(PRIX_ABO, 'EUR') + ' /mois' : '0 à 10 $ /mois';
   const s = texteSeuil(dispo);
   $('#k-seuil-bar').style.width = s.part.toFixed(1) + '%';
   $('#k-seuil-txt').textContent = Math.round(s.part) + ' %';
@@ -578,15 +579,15 @@ function rendreCalcul(){
   const brut = brutUnit * videos;
   const brut2 = brut2Unit * videos;
   const frais = fraisRetrait(brut2, abonne);
-  const coutAbo = abonne ? PRIX_ABO : FRAIS_COMPTE;
+  const coutAbo = abonne ? PRIX_ABO : 0;
   const net = netRetrait(brut2, abonne) - coutAbo;
 
   $('#x-brut').textContent = fmt(brut);
   $('#x-brut2').textContent = fmt(brut2);
   $('#x-frais').textContent = fmt(frais);
-  $('#x-abo-cout').textContent = abonne ? fmt(PRIX_ABO, 'EUR') : fmt(FRAIS_COMPTE);
+  $('#x-abo-cout').textContent = abonne ? fmt(PRIX_ABO, 'EUR') : '0 $';
   $('#x-net').textContent = fmt(net);
-  $('#x-net-eur').textContent = '≈ ' + fmt(eur(net, etat.taux), 'EUR') + ' après frais et coût mensuel';
+  $('#x-net-eur').textContent = '≈ ' + fmt(eur(net, etat.taux), 'EUR') + (abonne ? ' après frais de retrait et abonnement' : ' après frais de retrait');
 
   const v100 = vuesPourNet(100, rpm, abonne, cap);
   const v500 = vuesPourNet(500 / etat.taux, rpm, abonne, cap);
